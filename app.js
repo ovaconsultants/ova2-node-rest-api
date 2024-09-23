@@ -11,7 +11,7 @@ app.use(express.json()); // Parse JSON bodies
 app.use('/api/users', userRoutes);
 
 // Start server
-// eslint-disable-next-line no-undef
+
 const port = process.env.PORT || 3001;
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
