@@ -11,7 +11,7 @@ const authMiddleware = (req, res, next) => {
   const token = authHeader.replace('Bearer ', '');
 
   try {
-    // eslint-disable-next-line no-undef
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;  // Attach user info to request object
     next();  // Continue to the next middleware or route handler
