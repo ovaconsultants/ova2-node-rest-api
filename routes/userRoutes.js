@@ -1,6 +1,6 @@
 
 const express = require('express');
-const { loginUser, getProfile, getRegistrationType , registerUser, FetchUsers, Search, AuthenticateAdminUser, updateUser, fetchRoles} = require('../controllers/userController');
+const { loginUser, getProfile, getRegistrationType , registerUser, FetchUsers, Search, AuthenticateAdminUser, updateUser, fetchRoles , fetchCompanyTypes , fetchCompanies ,postCompanyData} = require('../controllers/userController');
 const authMiddleware = require('../middleware/authMiddleware');
 // const { pool } = require('mssql');
 
@@ -15,5 +15,8 @@ router.get('/userSearch',Search);
 router.post('/authenticateAdminUser', AuthenticateAdminUser)
 router.put('/updateUser', updateUser)
 router.get('/fetchRoles' , fetchRoles)
+router.get('/fetchCompayTypes' , fetchCompanyTypes)
+router.get('/fetchCompanies' , fetchCompanies)
+router.post('/postCompanyData' , postCompanyData)
 module.exports = router;
     
