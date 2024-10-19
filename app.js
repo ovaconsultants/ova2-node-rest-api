@@ -2,6 +2,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const userRoutes = require('./routes/userRoutes');
 const cors = require('cors');
+const emailRoutes = require('./routes/emailRoutes');
 
 
 dotenv.config();
@@ -12,6 +13,7 @@ app.use(express.json()); // Parse JSON bodies
 
 // Register routes
 app.use('/api/users', userRoutes);
+app.use('/api', emailRoutes);
 
 // Start server
 
