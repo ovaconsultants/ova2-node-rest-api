@@ -1,5 +1,5 @@
 module.exports = {
-    user:'postgres.cdvaqukzqobkxfjsrbfc',
+    user:'postgres.cdvaqukzqobkxfjsrbfc' ,
     host:'aws-0-us-west-1.pooler.supabase.com',
     database:'postgres',
     password:'KE9THloduM7FJXWo',

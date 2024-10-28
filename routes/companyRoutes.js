@@ -1,18 +1,5 @@
 const express = require("express");
 const {
-  loginUser,
-  getProfile,
-  getRegistrationType,
-  registerUser,
-  FetchUsers,
-  AuthenticateAdminUser,
-  updateUser,
-  fetchRoles,
-  fetchUserWithId,
-  deleteUser,
-} = require("../controllers/userController");
-
-const {
   fetchCompanyTypes,
   fetchCompanies,
   postCompanyDataJson,
@@ -24,22 +11,12 @@ const authMiddleware = require("../middleware/authMiddleware");
 // const { pool } = require('mssql');
 
 const router = express.Router();
-
-router.post("/login", loginUser); // Public route for login
-router.get("/profile", authMiddleware, getProfile); // Protected route
-router.get("/registrationType", getRegistrationType);
-router.post("/registerUser", registerUser);
-router.get("/fetchUsers", FetchUsers);
-router.post("/authenticateAdminUser", AuthenticateAdminUser);
-router.put("/updateUser", updateUser);
-router.get("/fetchRoles", fetchRoles);
 router.get("/fetchCompayTypes", fetchCompanyTypes);
 router.get("/fetchCompanies", fetchCompanies);
 router.post("/postCompanyData", postCompanyDataJson);
 router.get("/getCompanyDetails/:companyId", getCompanyDetails);
 router.put("/updateCompanyData", updateCompanyData);
 router.get("/gettingCompanyInJson/:companyId", gettingCompanyInJson);
-router.get("/fetchUserWithId/:userId", fetchUserWithId);
-router.post("/deleteUser", deleteUser);
+
 
 module.exports = router;

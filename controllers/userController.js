@@ -1,6 +1,5 @@
-const { generateToken } = require("../utils/jwtUtils");
-const { Pool } = require("pg");
-const dbConfig = require("../config/dbConfig.js");
+const p = require("../config/db");
+
 // Simulate user login
 const loginUser = (req, res) => {
   const { username, password } = req.body;
@@ -19,14 +18,6 @@ const getProfile = (req, res) => {
   res.send({ message: `Hello, user ${req.user.id}!` });
 };
 
-// connecting to database
-const p = new Pool({
-  user: dbConfig.user,
-  host: dbConfig.host,
-  database: dbConfig.database,
-  password: dbConfig.password,
-  port: dbConfig.port,
-});
 
 // getting registrstion types from database
 const getRegistrationType = (req, res) => {
@@ -37,9 +28,7 @@ const getRegistrationType = (req, res) => {
       if (err) {
         console.error("Query error", err.stack);
       } else {
-        console.log(response.rows);
         resp = response.rows;
-        console.log(response);
       }
       res.send({ message: resp });
     }
@@ -75,43 +64,19 @@ const FetchUsers = async (req, res) => {
       console.error("Query Error", err.stack);
     } else {
       resp = response.rows;
-      console.log(resp);
       res.send({ users: resp });
     }
   });
 };
 
-// search functionality from the databse
-const Search = async (req, res) => {
-  const { query } = req.query; // Expect a query parameter called 'query'
-  try {
-    const { rows } = await p.query(
-      `
-      SELECT * FROM ova2.tbl_registration 
-      WHERE first_name ILIKE $1 OR last_name ILIKE $1 OR email ILIKE $1`,
-      [`%${query}%`]
-    );
-
-    res.status(200).json({ users: rows });
-  } catch (error) {
-    console.error("Error searching users:", error);
-    res
-      .status(500)
-      .json({ message: "Error searching users", error: error.message });
-  }
-};
-
 // Admin user authentication functionality from database
 const AuthenticateAdminUser = async (req, res) => {
-  console.log(req.body);
   const { userName, password } = req.body;
   try {
     const { rows } = await p.query(
       `SELECT * FROM ova2.udf_authenticate_user($1,$2);`,
       [userName, password]
     );
-    console.log(rows);
-    console.log("rows ens here");
     res.status(200).send({ user: rows[0] });
   } catch (error) {
     console.error("Error searching users:", error);
@@ -124,8 +89,7 @@ const AuthenticateAdminUser = async (req, res) => {
 // Updating user in the databse and handle put request from the ui
 const updateUser = async (req, res) => {
   const { id, userNewData } = req.body;
-  console.log(id);
-  console.log(userNewData);
+  console.log("updateUser is called");
   try {
     const query = `
     SELECT ova2.udf_update_user_data(
@@ -167,11 +131,9 @@ const updateUser = async (req, res) => {
 };
 
 // fetching all the user roles
-
 const fetchRoles = async (req, res) => {
   try {
     const { rows } = await p.query("select * from  ova2.udf_fetch_roles() ;");
-    console.log(rows);
     res.status(200).send(rows);
   } catch (error) {
     console.log("error ocuured during the fetching of Role Types");
@@ -185,7 +147,6 @@ const fetchCompanyTypes = async (req, res) => {
     const { rows } = await p.query(
       "SELECT * FROM ova2.udf_fetch_company_types();"
     );
-    console.log(rows);
     res.send(rows);
   } catch (error) {
     console.log("Erroe while fetching the company types");
@@ -196,8 +157,7 @@ const fetchCompanyTypes = async (req, res) => {
 // fetching companies from database
 const fetchCompanies = async (req, res) => {
   try {
-    const { rows } = await p.query("SELECT * from ova2.fetch_companies();");
-    console.log(rows);
+    const { rows } = await p.query("SELECT * from ova2.udf_fetch_companies();");
     res.send(rows);
   } catch (error) {
     console.log("error ocurred fetching companies data from databse ");
@@ -205,63 +165,119 @@ const fetchCompanies = async (req, res) => {
   }
 };
 
-// posting company data to the databseng in databse "
-const postCompanyData = async (req, res) => {
-  // Log the request for debugging
-  console.log(req);
+// fetching Details of company with companyId
+const getCompanyDetails = async (req, res) => {
+  const { companyId } = req.params;
+  try {
+    const query = `SELECT * FROM ova2.udf_fetch_company_by_id($1);`;
 
-  // Extract company data from the request body
-  const companyData = req.body;
+    const { rows } = await p.query(query, [companyId]);
+
+    if (rows.length) {
+      res.status(200).json(rows[0]);
+    } else {
+      res.status(404).json({ message: "Company not found" });
+    }
+  } catch (error) {
+    console.error("Error fetching company details:", error);
+    res.status(500).json({
+      message: "Error fetching company details",
+      error: error.message,
+    });
+  }
+};
+
+// updating company data in databse
+const updateCompanyData = async (req, res) => {
+  const { companyId, companyData } = req.body;
+
+  if (!companyId || !companyData) {
+    return res
+      .status(400)
+      .json({ message: "Company ID and data are required." });
+  }
 
   try {
-    const query = `
-      SELECT ova2.udf_insert_company(
-        $1::character varying,  
-        $2::character varying, 
-        $3::character varying,  
-        $4::integer,            
-        $5::character varying, 
-        $6::text,            
-        $7::integer,            
-        $8::character varying,  
-        $9::character varying,  
-        $10::character varying,
-        $11::character varying, 
-        $12::character varying, 
-        $13::text,             
-        $14::jsonb              
-      );
-    `;
-
-    // Ensure the required fields are provided or fallback to default values (where applicable)
-    const values = [
-      companyData.company_name || '',                    
-      companyData.contact_no || '',                      
-      companyData.email_address || '',                   
-      companyData.company_type_id || 0,                  
-      companyData.website_url || null,                   
-      companyData.location || null,                      
-      companyData.established_year || null,              
-      companyData.industry_sector || null,               
-      companyData.contact_person_name || '',             
-      companyData.contact_person_designation || null,    
-      companyData.contact_person_phone || '',            
-      companyData.contact_person_email || '',            
-      companyData.description || null,                   
-      companyData.additional_info || null                
-    ];
-
-    // Execute the query
-    const response = await p.query(query, values);
-
-    // Send the successful response
-    res.status(200).send(response); // Assuming you want to return the result of the function
+    const { rows } = await p.query(
+      `SELECT ova2.udf_update_company_from_json($1::INT, $2::JSONB);`,
+      [companyId, JSON.stringify(companyData)]
+    );
+    const message = rows[0]?.udf_update_company_from_json;
+    if (message) {
+      const status = message === "Company updated successfully." ? 200 : 400;
+      return res.status(status).json({ message });
+    } else {
+      return res
+        .status(500)
+        .json({ message: "Unexpected response from the database." });
+    }
   } catch (error) {
-    // Log and handle the error
-    console.error("Error occurred during the insertion of company data", error);
+    console.error("Error updating company:", error);
+    return res
+      .status(500)
+      .json({ message: "Error updating company", error: error.message });
+  }
+};
 
-    // Send an error response to the client
-    res.status(500).send("Error occurred while inserting company data");
+//  posting company data
+const postCompanyDataJson = async (req, res) => {
+  companyData = req.body;
+  const jsonObjectString = JSON.stringify(companyData);
+  try {
+    const query = "SELECT ova2.udf_insert_company_from_json($1);";
+    const response = await p.query(query, [jsonObjectString]);
+    res.send(response);
+  } catch (error) {
+    console.log("error ocuured");
+    throw error;
+  }
+};
+
+// getting company from the json as single object
+const gettingCompanyInJson = async (req, res) => {
+  const { companyId } = req.params;
+  try {
+    const response = await p.query(
+      "SELECT ova2.udf_fetch_company_by_id_in_json($1);",
+      [companyId]
+    );
+    if (response.rows.length > 0) {
+      const companyData = response.rows[0].udf_fetch_company_by_id_in_json;
+      res.json(response);
+    } else {
+      res.status(404).json({ message: "Company not found" });
+    }
+  } catch (error) {
+    console.error("An error occurred while fetching company as JSON", error);
+    res.status(500).json({ message: "An error occurred" });
+  }
+};
+
+// fetch user with the id from databse
+const fetchUserWithId = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { rows } = await p.query(
+      "SELECT ova2.udf_fetch_user_with_id($1::integer);",
+      [parseInt(userId)]
+    );
+    res.json(rows[0]?.udf_fetch_user_with_id);
+  } catch (error) {
+    console.error("An error occurred while fetching user as JSON", error);
+    res.status(500).json({ message: "An error occurred" });
+  }
+};
+
+const deleteUser = async (req, res) => {
+  const { registration_id } = req.body;
+  try {
+    const { rows } = await p.query("SELECT ova2.udf_delete_user($1);", [
+      registration_id,
+    ]);
+    res.send(rows[0]?.udf_delete_user);
+  } catch (error) {
+    console.error("An error occurred while deleting user ", error);
+    res.status(500).json({ message: "An error occurred" });
   }
 };
 
@@ -271,11 +287,15 @@ module.exports = {
   getRegistrationType,
   registerUser,
   FetchUsers,
-  Search,
   AuthenticateAdminUser,
   updateUser,
   fetchRoles,
   fetchCompanyTypes,
   fetchCompanies,
-  postCompanyData,
+  postCompanyDataJson,
+  updateCompanyData,
+  getCompanyDetails,
+  gettingCompanyInJson,
+  fetchUserWithId,
+  deleteUser,
 };
