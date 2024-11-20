@@ -1,4 +1,5 @@
 const p = require("../config/db");
+const generateToken = require('../utils/jwtUtils')
 
 // Simulate user login
 const loginUser = (req, res) => {
@@ -77,6 +78,9 @@ const AuthenticateAdminUser = async (req, res) => {
       `SELECT * FROM ova2.udf_authenticate_user($1,$2);`,
       [userName, password]
     );
+    // const token = generateToken(rows[0].registration_id); // Mock userId as 1
+    const user = rows[0];
+    return res.status(200).send({user});
     res.status(200).send({ user: rows[0] });
   } catch (error) {
     console.error("Error searching users:", error);
@@ -268,6 +272,7 @@ const fetchUserWithId = async (req, res) => {
   }
 };
 
+// deleting user 
 const deleteUser = async (req, res) => {
   const { registration_id } = req.body;
   try {
@@ -280,6 +285,21 @@ const deleteUser = async (req, res) => {
     res.status(500).json({ message: "An error occurred" });
   }
 };
+
+// fetching users with filetring with registration type id 
+const fetchUsersWithRegistrationId = async (req, res) => {
+  console.log(req);
+  const { registration_id } = req.query;
+  console.log("registration id " , registration_id);
+  try {
+    const { rows } = await p.query("SELECT * FROM ova2.udf_retrieve_users_by_registration_type_id($1::int);", [ registration_id]);
+    res.send(rows);
+  } catch (error) {
+    console.error("An error occurred while deleting user ", error);
+    res.status(500).json({ message: "An error occurred" });
+  }
+}; 
+
 
 module.exports = {
   loginUser,
@@ -298,4 +318,5 @@ module.exports = {
   gettingCompanyInJson,
   fetchUserWithId,
   deleteUser,
+  fetchUsersWithRegistrationId
 };

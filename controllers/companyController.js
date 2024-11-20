@@ -94,7 +94,7 @@ const postCompanyDataJson = async (req, res) => {
 
 // getting company from the json as single object
 const gettingCompanyInJson = async (req, res) => {
-  const { companyId } = req.params;
+  console.log( req.params) ;
   try {
     const response = await p.query(
       "SELECT ova2.udf_fetch_company_by_id_in_json($1);",
@@ -112,6 +112,44 @@ const gettingCompanyInJson = async (req, res) => {
   }
 };
 
+// fetching company Types
+const fetchCommunicationMediums = async (req, res) => {
+  try { 
+    const { rows } = await p.query(
+      "SELECT * FROM ova2.udf_fetch_communication_mediums();"
+    );
+    res.send(rows);
+  } catch (error) {
+    console.log("Erroe while fetching the company types");
+    throw error;
+  }
+};
+
+// Server-side deleteCompany function (using POST)
+const deleteCompany = async (req, res) => {
+  const { companyId } = req.body; // Accepting companyId from the request body
+  try {
+    const { rows } = await p.query("SELECT ova2.udf_delete_company($1);", [parseInt(companyId)]);
+    res.json({ success: true, data: rows });
+  } catch (error) {
+    console.error("Error while deleting the company");
+    res.status(500).json({ message: "An error occurred while deleting the company" });
+  }
+};
+
+// fetching data of all assigned employees in HR Team 
+const fetchAllEmployeeAllocations = async(req,res) => {
+  try {
+    const { rows } = await p.query(
+      "SELECT * FROM ova2.get_all_employee_allocations();"
+    );
+    res.send(rows);
+  } catch (error) {
+    console.log("Erroe while fetching the company types");
+    throw error;
+  }
+}
+
 module.exports = {
   fetchCompanyTypes,
   fetchCompanies,
@@ -119,4 +157,7 @@ module.exports = {
   updateCompanyData,
   getCompanyDetails,
   gettingCompanyInJson,
+  fetchCommunicationMediums,
+  deleteCompany,
+  fetchAllEmployeeAllocations
 };
