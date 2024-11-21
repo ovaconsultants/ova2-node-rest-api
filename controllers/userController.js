@@ -1,5 +1,5 @@
 const p = require("../config/db");
-const generateToken = require('../utils/jwtUtils')
+const  { generateToken }= require('../utils/jwtUtils')
 
 // Simulate user login
 const loginUser = (req, res) => {
@@ -75,20 +75,29 @@ const AuthenticateAdminUser = async (req, res) => {
   const { userName, password } = req.body;
   try {
     const { rows } = await p.query(
-      `SELECT * FROM ova2.udf_authenticate_user($1,$2);`,
+      `SELECT * FROM ova2.udf_authenticate_user($1, $2);`,
       [userName, password]
     );
-    // const token = generateToken(rows[0].registration_id); // Mock userId as 1
+
+    if (rows.length === 0) {
+      return res.status(401).json({ message: "Authentication failed. User not found." });
+    }
+    console.log( "these rows comesBack " , rows);
+    console.log("This is the registration ID for token" , rows[0]._registration_id);
+    const token = generateToken(rows[0]._registration_id);
+
+    // Combine user details and token in the response
     const user = rows[0];
-    return res.status(200).send({user});
-    res.status(200).send({ user: rows[0] });
+    return res.status(200).json({ user, token });
+
   } catch (error) {
-    console.error("Error searching users:", error);
-    res
+    console.error("Error authenticating user:", error);
+    return res
       .status(500)
-      .json({ message: "Error searching users", error: error.message });
+      .json({ message: "Error authenticating user", error: error.message });
   }
 };
+
 
 // Updating user in the databse and handle put request from the ui
 const updateUser = async (req, res) => {
@@ -288,9 +297,7 @@ const deleteUser = async (req, res) => {
 
 // fetching users with filetring with registration type id 
 const fetchUsersWithRegistrationId = async (req, res) => {
-  console.log(req);
   const { registration_id } = req.query;
-  console.log("registration id " , registration_id);
   try {
     const { rows } = await p.query("SELECT * FROM ova2.udf_retrieve_users_by_registration_type_id($1::int);", [ registration_id]);
     res.send(rows);
