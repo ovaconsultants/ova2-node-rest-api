@@ -10,7 +10,7 @@ const {
   fetchRoles,
   fetchUserWithId,
   deleteUser,
-  fetchUsersWithRegistrationId
+  fetchUsersWithRegistrationId , 
 } = require("../controllers/userController");
 
 const authMiddleware = require("../middleware/authMiddleware");
@@ -23,11 +23,13 @@ router.get("/registrationType", getRegistrationType);
 router.post("/registerUser", registerUser);
 router.post("/authenticateAdminUser", AuthenticateAdminUser);
 
+
 // Protected Routes
 router.use(authMiddleware);
 
 router.get("/profile", getProfile);
 router.get("/fetchUsers", FetchUsers);
+
 router.put("/updateUser", updateUser);
 router.get("/fetchRoles", fetchRoles);
 router.get("/fetchUserWithId/:userId", fetchUserWithId);

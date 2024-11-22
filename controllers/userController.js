@@ -325,5 +325,6 @@ module.exports = {
   gettingCompanyInJson,
   fetchUserWithId,
   deleteUser,
-  fetchUsersWithRegistrationId
+  fetchUsersWithRegistrationId 
+ 
 };
