@@ -82,10 +82,8 @@ const AuthenticateAdminUser = async (req, res) => {
     if (rows.length === 0) {
       return res.status(401).json({ message: "Authentication failed. User not found." });
     }
-    console.log( "these rows comesBack " , rows);
-    console.log("This is the registration ID for token" , rows[0]._registration_id);
     const token = generateToken(rows[0]._registration_id);
-
+        console.log("token generated for this user " , token);
     // Combine user details and token in the response
     const user = rows[0];
     return res.status(200).json({ user, token });
@@ -299,7 +297,7 @@ const deleteUser = async (req, res) => {
 const fetchUsersWithRegistrationId = async (req, res) => {
   const { registration_id } = req.query;
   try {
-    const { rows } = await p.query("SELECT * FROM ova2.udf_retrieve_users_by_registration_type_id($1::int);", [ registration_id]);
+    const { rows } = await p.query("SELECT * FROM ova2.udf_retrieve_users_names_by_registration_type_id($1::int);", [ registration_id]);
     res.send(rows);
   } catch (error) {
     console.error("An error occurred while deleting user ", error);

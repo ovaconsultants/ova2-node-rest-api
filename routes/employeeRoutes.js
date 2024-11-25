@@ -8,4 +8,4 @@ router.get('/retrieve_employees', retrieve_employees);
 router.post('/postingEmployeeSalaryData',postingEmployeeSalaryData );
 router.get('/fetchSalaryData/:registrationId/:year', fetchSalaryData );
 router.get("/fetchEmployeeSalaryYears/:employeeId" , fetchEmployeeSalaryYears );
-module.exports = router;
+module.exports = router;    
