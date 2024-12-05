@@ -11,6 +11,7 @@ const {
   fetchUserWithId,
   deleteUser,
   fetchUsersWithRegistrationId , 
+  registerEnrollment
 } = require("../controllers/userController");
 
 const authMiddleware = require("../middleware/authMiddleware");
@@ -35,5 +36,6 @@ router.get("/fetchRoles", fetchRoles);
 router.get("/fetchUserWithId/:userId", fetchUserWithId);
 router.get("/fetchUsersWithRegistrationId", fetchUsersWithRegistrationId);
 router.delete("/deleteUser/:userId", deleteUser);
+router.post("/registerEnrollment" ,registerEnrollment)
 
 module.exports = router;

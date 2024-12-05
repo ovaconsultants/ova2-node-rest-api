@@ -305,6 +305,19 @@ const fetchUsersWithRegistrationId = async (req, res) => {
   }
 }; 
 
+// fetching users with filetring with registration type id 
+const registerEnrollment = async (req, res) => {
+  const courseData = req.body;
+  console.log("getting this course data in server" , courseData);
+  try {
+    const { rows } = await p.query("SELECT ova2.udf_enroll_student($1::jsonb)", [ courseData]);
+    res.send(rows);
+  } catch (error) {
+    console.error("An error occurred while enrolling a  user ", error);
+    res.status(500).json({ message: "An error occurred" });
+  }
+}; 
+
 
 module.exports = {
   loginUser,
@@ -323,6 +336,7 @@ module.exports = {
   gettingCompanyInJson,
   fetchUserWithId,
   deleteUser,
-  fetchUsersWithRegistrationId 
+  fetchUsersWithRegistrationId ,
+  registerEnrollment
  
 };

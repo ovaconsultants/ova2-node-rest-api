@@ -16,7 +16,6 @@ const retrieve_employees = async (req ,res)=> {
 
 // posting salary data in database through json object 
 const  postingEmployeeSalaryData  = async (req,res)=>{
-       console.log(req) ;
        const { salaryData } = req.body ;
        console.log(salaryData) ;
     try {
