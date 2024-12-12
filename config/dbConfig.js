@@ -1,8 +1,8 @@
 module.exports = {
-    user:'postgres.cdvaqukzqobkxfjsrbfc' ,
-    host:'aws-0-us-west-1.pooler.supabase.com',
-    database:'postgres',
-    password:'KE9THloduM7FJXWo',
+    user: process.env.DB_USER,
+    host:process.env.DB_SERVER,
+    database: process.env.DB_DATABASE,
+    password:process.env.DB_PASSWORD,
     port:6543,
     pool : {
         max: 10,                  
@@ -10,5 +10,5 @@ module.exports = {
         acquire: 30000,          
         idle: 10000 
     }
-
+ 
 }
