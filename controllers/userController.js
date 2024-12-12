@@ -318,6 +318,18 @@ const registerEnrollment = async (req, res) => {
   }
 }; 
 
+// fetching all the Enrollments in the All courses  
+const fetchAllEnrollments = async (req, res) => {
+  try {
+    const { rows } = await p.query("SELECT * FROM ova2.udf_fetch_all_course_enrollments();");
+    console.log(rows);
+    res.send(rows);
+  } catch (error) {
+    console.error("An error occurred while enrolling a  user ", error);
+    res.status(500).json({ message: "An error occurred" });
+  }
+}; 
+
 
 module.exports = {
   loginUser,
@@ -337,6 +349,6 @@ module.exports = {
   fetchUserWithId,
   deleteUser,
   fetchUsersWithRegistrationId ,
-  registerEnrollment
- 
+  registerEnrollment ,
+  fetchAllEnrollments
 };
