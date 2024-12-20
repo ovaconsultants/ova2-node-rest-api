@@ -1,3 +1,4 @@
+const { Int } = require("mssql");
 const p = require("../config/db");
 const  { generateToken }= require('../utils/jwtUtils')
 
@@ -71,8 +72,10 @@ const FetchUsers = async (req, res) => {
 };
 
 // Admin user authentication functionality from database
+
 const AuthenticateAdminUser = async (req, res) => {
   const { userName, password } = req.body;
+  
   try {
     const { rows } = await p.query(
       `SELECT * FROM ova2.udf_authenticate_user($1, $2);`,
@@ -82,11 +85,20 @@ const AuthenticateAdminUser = async (req, res) => {
     if (rows.length === 0) {
       return res.status(401).json({ message: "Authentication failed. User not found." });
     }
+
     const token = generateToken(rows[0]._registration_id);
-        console.log("token generated for this user " , token);
-    // Combine user details and token in the response
+    console.log("Token generated for this user:", token);
+
+    // Set the token in an HttpOnly cookie
+    res.cookie('authToken', token, {
+      httpOnly: true, // Prevents JavaScript from accessing the cookie
+      maxAge: 3600 * 1000, // 1 hour expiration (adjust if needed)
+      sameSite: 'Strict' // Helps prevent CSRF attacks
+    });
+
+    // Respond with user details (without sending the token to the frontend)
     const user = rows[0];
-    return res.status(200).json({ user, token });
+    return res.status(200).json({ message: "Authentication successful", user });
 
   } catch (error) {
     console.error("Error authenticating user:", error);
@@ -97,47 +109,30 @@ const AuthenticateAdminUser = async (req, res) => {
 };
 
 
+
 // Updating user in the databse and handle put request from the ui
+// Controller Function
 const updateUser = async (req, res) => {
   const { id, userNewData } = req.body;
-  console.log("updateUser is called");
-  try {
-    const query = `
-    SELECT ova2.udf_update_user_data(
-        $1::INT, 
-        $2::VARCHAR, 
-        $3::VARCHAR, 
-        $4::VARCHAR, 
-        $5::VARCHAR, 
-        $6::VARCHAR, 
-        $7::VARCHAR, 
-        $8::INT, 
-        $9::INT, 
-        $10::BOOLEAN, 
-        $11::BOOLEAN
-    );
-`;
+  console.log(id);
+  console.log(userNewData)
+  if (!id || !userNewData) {
+    return res.status(400).json({ error: 'ID and userNewData are required' });
+  }
 
-    // Execute the query with the parameters
-    await p.query(query, [
-      id,
-      userNewData.first_name || null,
-      userNewData.last_name || null,
-      userNewData.email || null,
-      userNewData.phone || null,
-      userNewData.password || null,
-      userNewData.address || null,
-      userNewData.role_id || null,
-      userNewData.registration_type_id || null,
-      userNewData.is_active || null,
-      userNewData.is_deleted || null,
-    ]);
-    res.status(200).json({ message: "User updated successfully" });
+  try { 
+    // Combine ID with userNewData into a single JSON object
+    const userData = { registration_id: parseInt(id), ...userNewData };
+     
+    // Assuming you are using a PostgreSQL client library like pg or knex
+    const result = await p.query(`
+      SELECT ova2.udf_update_user_data($1::jsonb)
+    `, [userData]);
+
+    res.status(200).json({ message: 'User updated successfully'});
   } catch (error) {
-    console.error("Error updating user:", error);
-    res
-      .status(500)
-      .json({ message: "Error updating user", error: error.message });
+    console.error('Error updating user:', error);
+    res.status(500).json({ error: 'Failed to update user' });
   }
 };
 
