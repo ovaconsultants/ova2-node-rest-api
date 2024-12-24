@@ -7,7 +7,8 @@ const emailRoutes = require('./routes/emailRoutes');
 const companyRoutes = require('./routes/companyRoutes') ;
 const employeeRoutes = require('./routes/employeeRoutes');
 const contactRoutes = require('./routes/contactRoutes');
-const jobRoutes = require('./routes/jobRoutes')
+const jobRoutes = require('./routes/jobRoutes');
+const jobApplicantRoutes = require('./routes/jobApplicantRoutes')
 
 
 
@@ -24,11 +25,11 @@ app.use(express.json()); // Parse JSON bodies
 // Register routes
 app.use('/api/users', userRoutes);
 app.use('/api', emailRoutes);
-app.use('/api', contactRoutes)
+app.use('/api', contactRoutes);
 app.use('/api/company',companyRoutes);
-app.use('/api/employee', employeeRoutes)
-app.use('/api/jobs', jobRoutes)
-
+app.use('/api/employee', employeeRoutes);
+app.use('/api/jobs', jobRoutes);
+app.use('/api/applicant', jobApplicantRoutes);
 
 
 // Start server
