@@ -8,7 +8,9 @@ const {
   gettingCompanyInJson,
   fetchCommunicationMediums,
   deleteCompany,
-  fetchAllEmployeeAllocations
+  fetchAllEmployeeAllocations,
+  addVendorComment,
+  fetchCommentsByCompanyId
 }   = require( "../controllers/companyController") ;
 const authMiddleware = require("../middleware/authMiddleware");
 // const { pool } = require('mssql');
@@ -22,7 +24,9 @@ router.put("/updateCompanyData", updateCompanyData);
 router.get("/gettingCompanyInJson/:companyId", gettingCompanyInJson);
 router.get("/fetchCommunicationMediums" , fetchCommunicationMediums);
 router.post("/deleteCompany" , deleteCompany);
-router.get("/fetchAllEmployeeAllocations",fetchAllEmployeeAllocations)
+router.get("/fetchAllEmployeeAllocations",fetchAllEmployeeAllocations);
+router.post("/add-comment" , addVendorComment);
+router.get("/fetchAllComments/:companyId", fetchCommentsByCompanyId);
 
 
 module.exports = router;
