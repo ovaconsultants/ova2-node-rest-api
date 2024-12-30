@@ -150,6 +150,75 @@ const fetchAllEmployeeAllocations = async(req,res) => {
   }
 }
 
+const addVendorComment = async (req, res) => {
+  const { company_id, comment } = req.body;
+
+  try {
+    // Validate the input
+    if (!company_id || !comment) {
+      return res.status(400).json({ message: "Company ID and comment are required." });
+    }
+
+    // Define the query
+    const query = `SELECT ova2.udf_add_vendor_comment($1::jsonb) AS result;`;
+
+    // Prepare the JSON input
+    const commentData = {
+      company_id: company_id, // Using company_id here
+      comment: comment,
+    };
+
+    // Execute the query
+    const { rows } = await p.query(query, [JSON.stringify(commentData)]);
+
+    // Return success response
+    res.status(201).json({
+      message: rows[0]?.result || "Comment added successfully",
+    });
+  } catch (error) {
+    console.error("Error adding vendor comment:", error);
+    res.status(500).json({
+      message: "Error adding vendor comment",
+      error: error.message,
+    });
+  }
+};
+
+const fetchCommentsByCompanyId = async (req, res) => {
+  const { companyId } = req.params;
+
+  if (!companyId) {
+    return res.status(400).send({
+      error: "Company ID is required.",
+    });
+  }
+
+  try {
+    const { rows } = await p.query(
+      "SELECT * FROM ova2.udf_fetch_vendor_comments_by_company_id($1);",
+      [companyId]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).send({
+        message: "No comments found for the given company ID.",
+      });
+    }
+
+    res.status(200).send(rows);
+  } catch (error) {
+    console.error("Error occurred fetching vendor comments data from database: ", error);
+    res.status(500).send({
+      error: "Failed to fetch vendor comments data. Please try again later.",
+    });
+  }
+};
+
+
+
+
+
+
 module.exports = {
   fetchCompanyTypes,
   fetchCompanies,
@@ -159,5 +228,7 @@ module.exports = {
   gettingCompanyInJson,
   fetchCommunicationMediums,
   deleteCompany,
-  fetchAllEmployeeAllocations
+  fetchAllEmployeeAllocations,
+  addVendorComment,
+  fetchCommentsByCompanyId
 };
