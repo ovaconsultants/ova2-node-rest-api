@@ -73,9 +73,11 @@ const FetchUsers = async (req, res) => {
 
 // Admin user authentication functionality from database
 
+
 const AuthenticateAdminUser = async (req, res) => {
   const { userName, password } = req.body;
-  
+  console.log(req.body);
+
   try {
     const { rows } = await p.query(
       `SELECT * FROM ova2.udf_authenticate_user($1, $2);`,
@@ -89,24 +91,22 @@ const AuthenticateAdminUser = async (req, res) => {
     const token = generateToken(rows[0]._registration_id);
     console.log("Token generated for this user:", token);
 
-    // Set the token in an HttpOnly cookie
+   
     res.cookie('authToken', token, {
       httpOnly: true, // Prevents JavaScript from accessing the cookie
       maxAge: 3600 * 1000, // 1 hour expiration (adjust if needed)
       sameSite: 'Strict' // Helps prevent CSRF attacks
     });
-
-    // Respond with user details (without sending the token to the frontend)
+ // Respond with user details (without sending the token to the frontend)
     const user = rows[0];
     return res.status(200).json({ message: "Authentication successful", user });
 
   } catch (error) {
     console.error("Error authenticating user:", error);
-    return res
-      .status(500)
-      .json({ message: "Error authenticating user", error: error.message });
+    return res.status(500).json({ message: "Error authenticating user", error: error.message });
   }
 };
+
 
 
 
