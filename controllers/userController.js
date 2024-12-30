@@ -76,7 +76,7 @@ const FetchUsers = async (req, res) => {
 
 const AuthenticateAdminUser = async (req, res) => {
   const { userName, password } = req.body;
-  console.log(req.body);
+  // console.log(req.body);
 
   try {
     const { rows } = await p.query(
@@ -89,15 +89,15 @@ const AuthenticateAdminUser = async (req, res) => {
     }
 
     const token = generateToken(rows[0]._registration_id);
-    console.log("Token generated for this user:", token);
+    // console.log("Token generated for this user:", token);
 
    
     res.cookie('authToken', token, {
-      httpOnly: true, // Prevents JavaScript from accessing the cookie
+      httpOnly: true, 
       maxAge: 3600 * 1000, // 1 hour expiration (adjust if needed)
       sameSite: 'Strict' // Helps prevent CSRF attacks
     });
- // Respond with user details (without sending the token to the frontend)
+ 
     const user = rows[0];
     return res.status(200).json({ message: "Authentication successful", user });
 
