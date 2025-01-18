@@ -17,6 +17,7 @@ app.use(cookieParser());
 
 app.use(cors({
   origin: '*', // Use the WEB_URL from environment or fallback to localhost
+  methods: 'GET,POST',
   credentials: true, // Allow cookies (including JWT cookie) to be sent
 }));
 
