@@ -94,7 +94,7 @@ const AuthenticateAdminUser = async (req, res) => {
    
     //  const isProduction = process.env.NODE_ENV === 'production';
      res.cookie('authToken', token, {
-      //  httpOnly: true,
+       httpOnly: true,
        maxAge: 3600 * 8 * 1000,
       //  sameSite: isProduction ? 'Strict' : 'Lax',
       //  secure: isProduction
