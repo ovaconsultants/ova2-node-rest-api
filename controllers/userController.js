@@ -89,14 +89,17 @@ const AuthenticateAdminUser = async (req, res) => {
     }
 
     const token = generateToken(rows[0]._registration_id);
-    // console.log("Token generated for this user:", token);
+     console.log("Token generated for this user:", token);
 
    
-    res.cookie('authToken', token, {
-      httpOnly: true, 
-      maxAge: 3600 * 1000, // 1 hour expiration (adjust if needed)
-      sameSite: 'Strict' // Helps prevent CSRF attacks
-    });
+     const isProduction = process.env.NODE_ENV === 'production';
+     res.cookie('authToken', token, {
+       httpOnly: true,
+       maxAge: 3600 * 8 * 1000,
+       sameSite: isProduction ? 'Strict' : 'Lax',
+       secure: isProduction
+     });
+     
  
     const user = rows[0];
     return res.status(200).json({ message: "Authentication successful", user });
