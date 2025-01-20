@@ -28,7 +28,7 @@ router.get("/fetchAllEnrollments" ,fetchAllEnrollments )
 
 
 // Protected Routes
-router.use(authMiddleware);
+//router.use(authMiddleware);
 
 router.get("/profile", getProfile);
 router.get("/fetchUsers", FetchUsers);
