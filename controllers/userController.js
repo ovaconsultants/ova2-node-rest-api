@@ -96,7 +96,7 @@ const AuthenticateAdminUser = async (req, res) => {
      res.cookie('authToken', token, {
        httpOnly: true,
        maxAge: 3600 * 8 * 1000,
-      //  sameSite: isProduction ? 'Strict' : 'Lax',
+       sameSite: 'Lax',
       //  secure: isProduction
      });
      
