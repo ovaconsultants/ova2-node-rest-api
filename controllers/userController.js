@@ -97,7 +97,7 @@ const AuthenticateAdminUser = async (req, res) => {
        httpOnly: true,
        maxAge: 3600 * 8 * 1000,
        sameSite: isProduction ? 'Strict' : 'Lax',
-       secure: isProduction
+      //  secure: isProduction
      });
      
  
