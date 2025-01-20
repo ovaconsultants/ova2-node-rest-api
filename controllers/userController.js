@@ -92,12 +92,11 @@ const AuthenticateAdminUser = async (req, res) => {
      console.log("Token generated for this user:", token);
 
    
-     const isProduction = process.env.NODE_ENV === 'production';
+    //  const isProduction = process.env.NODE_ENV === 'production';
      res.cookie('authToken', token, {
        httpOnly: true,
        maxAge: 3600 * 8 * 1000,
-       sameSite: isProduction ? 'Strict' : 'Lax',
-       secure: isProduction
+       sameSite: 'Lax',
      });
      
  
