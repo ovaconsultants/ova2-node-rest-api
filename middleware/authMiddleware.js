@@ -1,45 +1,51 @@
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
+const logExceptionToDb = require("../utils/logExceptionToDb");
 
-const authMiddleware = (req, res, next) => {
-  // Get the token from the cookies
-  const token = req.cookies.authToken;  // assuming the token is stored in a cookie named "authToken"
-  
-  console.log("Received token:", token);  // Debugging: Log the token to see what is being received
+const authMiddleware = async (req, res, next) => {
+  console.log(req.cookies);
+  const token = req.cookies.authToken;
+  console.log("Token: ", token);
 
-  // Check if token exists
   if (!token) {
-    return res.status(401).send({ message: 'No token provided.' });
+    const logData = {
+      exception_message: " token provided.",
+      source: "authMiddleware",
+      severity: "WARNING",
+    };
+
+    try {
+      await logExceptionToDb(logData);
+    } catch (err) {
+      console.error("Failed to log exception:", err);
+    }
+
+    return res.status(401).send({ message: "token provided." });
   }
 
   try {
-    // Verify the token using the secret key
-    console.log("Verifying token with the secret key:", process.env.JWT_SECRET);
-    
-    // Decoding the token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("Decoded token information:", decoded);  // Log the decoded information
-
-    // Attach the decoded user info to the request object for use in subsequent middleware/route handlers
     req.user = decoded;
-
-    next(); // Proceed to the next middleware or route handler
+    next();
   } catch (err) {
-    // Log the error details to debug
-    console.error("Error verifying the token:", err);
+    const logData = {
+      exception_message: err.message,
+      exception_stacktrace: err.stack,
+      source: "authMiddleware",
+      severity: err.name === "TokenExpiredError" ? "INFO" : "ERROR",
+    };
 
-    // Handle specific error types (you can also adjust based on your needs)
-    if (err.name === 'JsonWebTokenError') {
-      return res.status(403).json({ message: 'Invalid token.', error: err.message });
-    } else if (err.name === 'TokenExpiredError') {
-      return res.status(403).json({ message: 'Token has expired.', error: err.message });
+    try {
+      await logExceptionToDb(logData);
+    } catch (loggingError) {
+      console.error("Failed to log exception:", loggingError);
+    }
+
+    if (err.name === "TokenExpiredError") {
+      return res.status(403).json({ message: "Token has expired." });
     } else {
-      return res.status(403).json({ message: 'Invalid or expired token.', error: err.message });
+      return res.status(403).json({ message: "Invalid or expired token." });
     }
   }
 };
 
 module.exports = authMiddleware;
-
-
-
-

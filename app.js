@@ -1,5 +1,5 @@
 const express = require('express');
-const dotenv = require('dotenv').config({ path: '.env.development' });  // Load environment variables
+const dotenv = require('dotenv').config({ path: '.env.development' });
 const userRoutes = require('./routes/userRoutes');
 const cors = require('cors');
 const cookieParser = require('cookie-parser'); 
@@ -9,6 +9,7 @@ const employeeRoutes = require('./routes/employeeRoutes');
 const contactRoutes = require('./routes/contactRoutes');
 const jobRoutes = require('./routes/jobRoutes');
 const jobApplicantRoutes = require('./routes/jobApplicantRoutes');
+const exceptionRoutes  = require('./routes/exceptionRoutes');
 
 // Remove duplicate dotenv.config() call here, as it was already done in the previous line.
 
@@ -31,6 +32,8 @@ app.use('/api/company', companyRoutes);
 app.use('/api/employee', employeeRoutes);
 app.use('/api/jobs', jobRoutes);
 app.use('/api/applicant', jobApplicantRoutes);
+app.use('/api/exception', exceptionRoutes);
+
 
 // Start server
 const port = process.env.PORT || 3001;

@@ -1,4 +1,6 @@
 const express = require("express");
+const multer = require('multer');
+const upload = multer({ dest: 'upload/' });
 const {
   fetchCompanyTypes,
   fetchCompanies,
@@ -10,7 +12,8 @@ const {
   deleteCompany,
   fetchAllEmployeeAllocations,
   addVendorComment,
-  fetchCommentsByCompanyId
+  fetchCommentsByCompanyId,
+  postExcelVendorFile
 }   = require( "../controllers/companyController") ;
 const authMiddleware = require("../middleware/authMiddleware");
 // const { pool } = require('mssql');
@@ -27,6 +30,7 @@ router.post("/deleteCompany" , deleteCompany);
 router.get("/fetchAllEmployeeAllocations",fetchAllEmployeeAllocations);
 router.post("/add-comment" , addVendorComment);
 router.get("/fetchAllComments/:companyId", fetchCommentsByCompanyId);
+router.post("/upload", upload.single('file'), postExcelVendorFile);
 
 
 module.exports = router;
