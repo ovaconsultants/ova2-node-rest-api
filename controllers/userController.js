@@ -234,12 +234,6 @@ const fetchRoles = async (req, res) => {
     const { rows } = await p.query("select * from  ova2.udf_fetch_roles() ;");
     res.status(200).send(rows);
   } catch (error) {
-    await logExceptionToDb({
-      module: "fetchRoles",
-      message: error.message,
-      stack: error.stack,
-      additionalInfo: { query: "SELECT * FROM ova2.udf_fetch_roles();" },
-    });
     console.log("error ocuured during the fetching of Role Types");
     throw error;
   }
@@ -464,7 +458,7 @@ const postExcelFile = async (req, res) => {
         const last_name = rest.join(" ") || "";
 
         await p.query(
-          `CALL ova2.udf_insert_into_registration($1, $2, $3, $4, 'default_password', NULL, 1, $5, $6)`,
+          `SELECT ova2.udf_insert_into_registration($1, $2, $3, $4, 'default_password', NULL, 1, $5, $6)`,
           [first_name, last_name, EmailId, MobileNo, CurrentLocation, parseInt(Experience, 10)]
         );
 
@@ -490,6 +484,7 @@ const postExcelFile = async (req, res) => {
     res.status(500).json({ error: "Failed to process the Excel file." });
   }
 };
+
 
 
 
