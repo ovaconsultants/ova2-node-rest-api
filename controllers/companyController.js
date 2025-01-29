@@ -1,4 +1,6 @@
 const p = require("../config/db");
+const { Int } = require("mssql");
+const XLSX = require('xlsx');
 
 // fetching company Types
 const fetchCompanyTypes = async (req, res) => {
@@ -216,6 +218,98 @@ const fetchCommentsByCompanyId = async (req, res) => {
 
 
 
+const postExcelVendorFile = async (req, res) => {
+  const { file } = req;
+
+  if (!file) return res.status(400).send("No file uploaded.");
+
+  try {
+    // Read and parse the Excel file
+    const workbook = XLSX.readFile(file.path);
+    const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+    console.log("Parsed sheet data:", sheetData);
+
+    // Normalize field names to match expected format
+    const normalizedData = sheetData.map((row) => ({
+      companyName: row["Company Name"] || row["companyName"],
+      mobileNo: row["Mobile Number"] || row["mobileNo"],
+      EmailId: row["Email Address"] || row["EmailId"],
+      location: row["Location"] || row["location"],
+      currentPosition: row["Current Position"] || row["currentPosition"],
+    }));
+
+    // Prepare arrays to track successful and failed entries
+    const successfulEntries = [];
+    const failedEntries = [];
+
+    for (const vendor of normalizedData) {
+      try {
+        console.log("Processing vendor:", vendor);
+
+        const { companyName, mobileNo, EmailId, location, currentPosition } = vendor;
+
+        // Validate required fields
+        if (!companyName || !mobileNo || !EmailId || !location || !currentPosition) {
+          const missingFields = [];
+          if (!companyName) missingFields.push("companyName");
+          if (!mobileNo) missingFields.push("mobileNo");
+          if (!EmailId) missingFields.push("EmailId");
+          if (!location) missingFields.push("location");
+          if (!currentPosition) missingFields.push("currentPosition");
+          throw new Error(`Missing required fields: ${missingFields.join(", ")}`);
+        }
+
+        // Construct the JSON object to pass to the stored procedure
+        const companyData = {
+          company_name: companyName,
+          contact_no: mobileNo,
+          email_address: EmailId,
+          location,
+          currentposition: currentPosition,
+        };
+
+        // Call the stored procedure
+        const result = await p.query(
+          `SELECT ova2.udf_insert_company_from_json($1) AS result;`,
+          [JSON.stringify(companyData)]
+        );
+
+        // Parse the result
+        const message = result.rows[0]?.result;
+
+        // Track successful or failed insertion based on the result
+        if (message === "Company inserted successfully.") {
+          successfulEntries.push({ companyName, EmailId });
+        } else {
+          throw new Error(message);
+        }
+
+        
+      } catch (error) {
+        console.error(`Error processing vendor ${vendor.companyName || "Unknown"}:`, error);
+
+        // Track failed entries with error details
+        failedEntries.push({
+          companyName: vendor.companyName || "Unknown",
+          EmailId: vendor.EmailId || "Unknown",
+          error: error.message,
+        });
+
+        continue; // Proceed to the next vendor
+      }
+    }
+
+    // Return response with success and failure details
+    res.status(200).json({
+      message: "Processing completed.",
+      successfulEntries,
+      failedEntries,
+    });
+  } catch (error) {
+    console.error("Error processing file:", error);
+    res.status(500).json({ error: "Failed to process the Excel file." });
+  }
+};
 
 
 
@@ -230,5 +324,6 @@ module.exports = {
   deleteCompany,
   fetchAllEmployeeAllocations,
   addVendorComment,
-  fetchCommentsByCompanyId
+  fetchCommentsByCompanyId,
+  postExcelVendorFile
 };
