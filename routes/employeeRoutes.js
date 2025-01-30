@@ -1,5 +1,5 @@
 const express = require('express');
-const { retrieve_employees , postingEmployeeSalaryData , fetchSalaryData  , fetchUserWithRegistrationId , fetchEmployeeSalaryYears} =   require('../controllers/employeeController')
+const { retrieve_employees , postingEmployeeSalaryData , fetchSalaryData , fetchEmployeeSalaryYears} =   require('../controllers/employeeController')
 const router = express.Router();
 
 

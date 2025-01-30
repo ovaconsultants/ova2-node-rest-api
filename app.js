@@ -1,5 +1,5 @@
 const express = require('express');
-const dotenv = require('dotenv').config({ path: '.env.development' });
+//const dotenv = require('dotenv').config({ path: '.env.development' });
 const userRoutes = require('./routes/userRoutes');
 const cors = require('cors');
 const cookieParser = require('cookie-parser'); 
