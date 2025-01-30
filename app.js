@@ -18,8 +18,8 @@ app.use(cookieParser());
 
 app.use(cors({
   origin: "*", // Use the WEB_URL from environment or fallback to localhost
-  methods: 'GET,POST,DELETE,PUT',
-  credentials: true, // Allow cookies (including JWT cookie) to be sent
+ // methods: 'GET,POST,DELETE,PUT',
+ // credentials: true, // Allow cookies (including JWT cookie) to be sent
 }));
 
 app.use(express.json()); // Parse JSON bodies
