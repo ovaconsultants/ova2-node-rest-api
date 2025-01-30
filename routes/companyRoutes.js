@@ -15,7 +15,7 @@ const {
   fetchCommentsByCompanyId,
   postExcelVendorFile
 }   = require( "../controllers/companyController") ;
-const authMiddleware = require("../middleware/authMiddleware");
+//const authMiddleware = require("../middleware/authMiddleware");
 // const { pool } = require('mssql');
 
 const  router = express.Router();

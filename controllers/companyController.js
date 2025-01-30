@@ -1,5 +1,5 @@
 const p = require("../config/db");
-const { Int } = require("mssql");
+//const { Int } = require("mssql");
 const XLSX = require('xlsx');
 
 // fetching company Types
@@ -82,7 +82,7 @@ const updateCompanyData = async (req, res) => {
 
 //  posting company data
 const postCompanyDataJson = async (req, res) => {
-  companyData = req.body;
+  const companyData = req.body;
   const jsonObjectString = JSON.stringify(companyData);
   try {
     const query = "SELECT ova2.udf_insert_company_from_json($1);";
@@ -99,11 +99,10 @@ const gettingCompanyInJson = async (req, res) => {
   console.log( req.params) ;
   try {
     const response = await p.query(
-      "SELECT ova2.udf_fetch_company_by_id_in_json($1);",
-      [companyId]
+      "SELECT ova2.udf_fetch_company_by_id_in_json($1);"
     );
     if (response.rows.length > 0) {
-      const companyData = response.rows[0].udf_fetch_company_by_id_in_json;
+      response.rows[0].udf_fetch_company_by_id_in_json;
       res.json(response);
     } else {
       res.status(404).json({ message: "Company not found" });
@@ -134,7 +133,7 @@ const deleteCompany = async (req, res) => {
     const { rows } = await p.query("SELECT ova2.udf_delete_company($1);", [parseInt(companyId)]);
     res.json({ success: true, data: rows });
   } catch (error) {
-    console.error("Error while deleting the company");
+    console.error("Error while deleting the company",error);
     res.status(500).json({ message: "An error occurred while deleting the company" });
   }
 };

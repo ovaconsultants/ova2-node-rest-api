@@ -1,5 +1,5 @@
 const { sendEmailService } = require("../services/emailService");
-const { Int } = require("mssql");
+//const { Int } = require("mssql");
 const p = require("../config/db");
 const XLSX = require("xlsx");
 
@@ -332,7 +332,7 @@ const updateCompanyData = async (req, res) => {
 
 //  posting company data
 const postCompanyDataJson = async (req, res) => {
-  companyData = req.body;
+  const companyData = req.body;
   const jsonObjectString = JSON.stringify(companyData);
   try {
     const query = "SELECT ova2.udf_insert_company_from_json($1);";
@@ -353,7 +353,7 @@ const gettingCompanyInJson = async (req, res) => {
       [companyId]
     );
     if (response.rows.length > 0) {
-      const companyData = response.rows[0].udf_fetch_company_by_id_in_json;
+      response.rows[0].udf_fetch_company_by_id_in_json;
       res.json(response);
     } else {
       res.status(404).json({ message: "Company not found" });
@@ -493,7 +493,7 @@ const postExcelFile = async (req, res) => {
         const last_name = rest.join(" ") || "";
 
         // Assume the query throws an error if the record already exists
-        const result = await p.query(
+        await p.query(
           `SELECT ova2.udf_insert_into_registration($1, $2, $3, $4, 'default_password', NULL, 1, $5, $6)`,
           [
             first_name,
