@@ -1,5 +1,5 @@
 const express = require('express');
-//const dotenv = require('dotenv').config({ path: '.env.development' });
+const dotenv = require('dotenv').config({ path: '.env.development' });
 const userRoutes = require('./routes/userRoutes');
 const cors = require('cors');
 const cookieParser = require('cookie-parser'); 
@@ -17,9 +17,9 @@ const app = express();
 app.use(cookieParser());
 
 app.use(cors({
-  origin: "*", // Use the WEB_URL from environment or fallback to localhost
-//  methods: ["GET", "POST", "PUT", "DELETE"],
-//  credentials: true, // Allow cookies (including JWT cookie) to be sent
+  origin: process.env.WEB_URL, // Use the WEB_URL from environment or fallback to localhost
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true, // Allow cookies (including JWT cookie) to be sent
 }));
 
 app.use(express.json()); // Parse JSON bodies

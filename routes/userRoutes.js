@@ -25,7 +25,7 @@ const {
   postExcelFile
 } = require("../controllers/userController");
 
-//const authMiddleware = require("../middleware/authMiddleware");
+const authMiddleware = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
@@ -38,6 +38,7 @@ router.get("/fetchAllEnrollments", fetchAllEnrollments);
 router.post("/upload", upload.single("file"), postExcelFile);  // Handles file upload
 
 // Protected Routes
+router.use(authMiddleware);
 router.get("/profile", getProfile);
 router.get("/fetchUsers", FetchUsers);
 router.put("/updateUser", updateUser);
